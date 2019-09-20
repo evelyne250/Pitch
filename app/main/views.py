@@ -1,7 +1,7 @@
 from flask import render_template,request,redirect,url_for,abort
 from . import main
-from .forms import ReviewForm,UpdateProfile
-from ..models import User,Pitch
+from .forms import PitchForm,CommentForm,UpdateProfile
+from ..models import User,Pitch,Comment
 from flask_login import login_required,current_user
 from .. import db,photos
 
@@ -22,106 +22,105 @@ def index():
     promotionpitch = Pitch.query.filter_by(category = "promotionpitch")
     productpitch = Pitch.query.filter_by(category = "productpitch")
 
-    # upvotes = Upvote.get_all_upvotes(pitch_id=Pitch.id)
     
 
     return render_template('index.html', title = title, pitch = pitch, pickuplines=pickuplines, interviewpitch= interviewpitch, promotionpitch = promotionpitch, productpitch = productpitch)
     
-# @main.route('/movie/<int:id>')
-# def movie(id):
+@main.route('/pitch/<int:id>')
+def pitch(id):
 
-#     '''
-#     View movie page function that returns the movie details page and its data
-#     '''
-#     movie = get_movie(id)
-#     title = f'{movie.title}'
-#     reviews = Review.get_reviews(movie.id)
+    '''
+    View comment page function that returns the comment details page and its data
+    '''
+    pitch = get_pitch(id)
+    title = f'{pitch.title}'
+    comments = Comment.get_comments(pitch.id)
 
-#     return render_template('movie.html',title = title,movie = movie,reviews = reviews)
-
-
-
-
-
-# @main.route('/reviews/<int:id>')
-# def movie_reviews(id):
-#     movie = get_movie(id)
-
-#     reviews = Review.get_reviews(id)
-#     title = f'All reviews for {movie.title}'
-#     return render_template('movie_reviews.html',title = title,reviews=reviews)
-
-
-# @main.route('/review/<int:id>')
-# def single_review(id):
-#     review=Review.query.get(id)
-#     format_review = markdown2.markdown(review.movie_review,extras=["code-friendly", "fenced-code-blocks"])
-#     return render_template('review.html',review = review,format_review=format_review)
+    return render_template('comments.html',title = title,pitch = pitch,comments = comments)
 
 
 
 
-# @main.route('/movie/review/new/<int:id>', methods = ['GET','POST'])
-# @login_required
-# def new_review(id):
 
-#     form = ReviewForm()
+@main.route('/comments/<int:id>')
+def pitch_comments(id):
+    pitch = get_pitch(id)
 
-#     movie = get_movie(id)
-
-#     if form.validate_on_submit():
-#         title = form.title.data
-#         review = form.review.data
-
-#         new_review = Review(movie_id=movie.id,movie_title=title,image_path=movie.poster,movie_review=review,user=current_user)
-
-#         new_review.save_review()
-
-#         return redirect(url_for('.movie',id = movie.id ))
-
-#     title = f'{movie.title} review'
-#     return render_template('new_review.html',title = title, review_form=form, movie=movie)
-
-# @main.route('/user/<uname>')
-
-# def profile(uname):
-#     user = User.query.filter_by(username = uname).first()
-
-#     if user is None:
-#         abort(404)
-
-#     return render_template("profile/profile.html", user = user)
+    comments = Comment.get_comments(id)
+    title = f'All comments for {pitch.title}'
+    return render_template('pitch_comments.html',title = title,comments=comments)
 
 
-# @main.route('/user/<uname>/update',methods = ['GET','POST'])
-# @login_required
-# def update_profile(uname):
-#     user = User.query.filter_by(username = uname).first()
-#     if user is None:
-#         abort(404)
-
-#     form = UpdateProfile()
-
-#     if form.validate_on_submit():
-
-#         user.bio = form.bio.data
-
-#         db.session.add(user)
-#         db.session.commit()
-
-#         return redirect(url_for('.profile',uname=user.username))
-
-#     return render_template('profile/update.html',form =form)
+@main.route('/comment/<int:id>')
+def single_comment(id):
+    comment=Comment.query.get(id)
+    format_comment = markdown2.markdown(comment.pitch_comment,extras=["code-friendly", "fenced-code-blocks"])
+    return render_template('review.html',comment = comment,format_comment=format_comment)
 
 
-# @main.route('/user/<uname>/update/pic',methods= ['POST'])
-# @login_required
-# def update_pic(uname):
-#     user = User.query.filter_by(username = uname).first()
-#     if 'photo' in request.files:
-#         filename = photos.save(request.files['photo'])
-#         path = f'photos/{filename}'
-#         user.profile_pic_path = path
-#         user_photo = PhotoProfile(pic_path = path,user = user)
-#         db.session.commit()
-#     return redirect(url_for('main.profile',uname=uname))
+
+
+@main.route('/pitch/comment/new/<int:id>', methods = ['GET','POST'])
+@login_required
+def new_comment(id):
+
+    form = CommentForm()
+
+    pitch = get_pitch(id)
+
+    if form.validate_on_submit():
+        title = form.title.data
+        comment = form.comment.data
+
+        new_comment = comment(pitch_id=pitch.id,pitch_title=title,pitch_comment=comment,user=current_user)
+
+        new_comment.save_comment()
+
+        return redirect(url_for('.pitch',id = pitch.id ))
+
+    title = f'{pitch.title} comment'
+    return render_template('new_review.html',title = title, comment_form=form, pitch=pitch)
+
+@main.route('/user/<uname>')
+
+def profile(uname):
+    user = User.query.filter_by(username = uname).first()
+
+    if user is None:
+        abort(404)
+
+    return render_template("profile/profile.html", user = user)
+
+
+@main.route('/user/<uname>/update',methods = ['GET','POST'])
+@login_required
+def update_profile(uname):
+    user = User.query.filter_by(username = uname).first()
+    if user is None:
+        abort(404)
+
+    form = UpdateProfile()
+
+    if form.validate_on_submit():
+
+        user.bio = form.bio.data
+
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('.profile',uname=user.username))
+
+    return render_template('profile/update.html',form =form)
+
+
+@main.route('/user/<uname>/update/pic',methods= ['POST'])
+@login_required
+def update_pic(uname):
+    user = User.query.filter_by(username = uname).first()
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        path = f'photos/{filename}'
+        user.profile_pic_path = path
+        user_photo = PhotoProfile(pic_path = path,user = user)
+        db.session.commit()
+    return redirect(url_for('main.profile',uname=uname))

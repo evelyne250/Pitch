@@ -17,7 +17,7 @@ class User(UserMixin,db.Model):
     email = db.Column(db.String(255),unique = True,index = True)
     pass_secure = db.Column(db.String(255))
     pitch = db.relationship('Pitch', backref='user', lazy='dynamic')
-
+    bio = db.Column(db.String(255))
     @property
     def password(self):
         raise AttributeError('You cannot read the password attribute')
@@ -65,30 +65,30 @@ class Pitch(db.Model):
   
 
 
-# class Review(db.Model):
+class Comment(db.Model):
 
-#     __tablename__ = 'reviews'
-#     id = db.Column(db.Integer,primary_key = True)
-#     movie_id = db.Column(db.Integer)
-#     movie_title = db.Column(db.String)
-#     image_path = db.Column(db.String)
-#     movie_review = db.Column(db.String)
-#     posted = db.Column(db.Time,default=datetime.utcnow())
-#     user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer,primary_key = True)
+    pitch_id = db.Column(db.Integer,db.ForeignKey("pitches.id"), nullable = False)
+    comment = db.Column(db.Text)
+    user_id = db.Column(db.Integer,db.ForeignKey("users.id"), nullable = False)
 
-
-
-#     def save_review(self):
-#         db.session.add(self)
-#         db.session.commit()
+    def __repr__(self):
+        return f"Comment : id: {self.id} comment: {self.description}"
 
 
 
-#     @classmethod
-#     def get_reviews(cls,id):
+    def save_comment(self):
+        db.session.add(self)
+        db.session.commit()
 
-#         reviews = Review.query.filter_by(movie_id=id).all()
-#         return reviews
+
+
+    @classmethod
+    def get_comments(cls,id):
+
+        comments = Comment.query.filter_by(pitch_id=id).all()
+        return comments
 
 
 
@@ -103,13 +103,3 @@ class Pitch(db.Model):
 
 
 
-# class Role(db.Model):
-#     __tablename__ = 'roles'
-
-#     id = db.Column(db.Integer,primary_key = True)
-#     name = db.Column(db.String(255))
-#     users = db.relationship('User',backref = 'role',lazy="dynamic")
-
-
-#     def __repr__(self):
-#         return f'User {self.name}'
