@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField,TextAreaField,SubmitField,ValidationError,RadioField
 from wtforms.validators import Required,Email
-from ..models import User,Comment,Pitch
+from ..models import User,Pitch
 
 
 class PitchForm(FlaskForm):
@@ -9,13 +9,17 @@ class PitchForm(FlaskForm):
 	description = TextAreaField("What would you like to pitch ?",validators=[Required()])
 	category = RadioField('Label', choices=[ ('promotionpitch','promotionpitch'), ('interviewpitch','interviewpitch'),('pickuplines','pickuplines'),('productpitch','productpitch')],validators=[Required()])
 	submit = SubmitField('Submit')
-
+	
 class CommentForm(FlaskForm):
+	description = TextAreaField('Add comment',validators=[Required()])
+	submit = SubmitField()
 
-    title = StringField('Review comment',validators=[Required()])
-    review = TextAreaField('Comment review')
-    submit = SubmitField('Submit')
+class UpvoteForm(FlaskForm):
+	submit = SubmitField()
 
+
+class Downvote(FlaskForm):
+	submit = SubmitField()
 class UpdateProfile(FlaskForm):
     bio = TextAreaField('Tell us about you.',validators = [Required()])
     submit = SubmitField('Submit')

@@ -1,37 +1,51 @@
-<!-- Displaying pitches list macro  -->
-
 {% macro display(category_list) %}
-{% if category_list %}
-    {% for category in category_list %}
-        <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2 category-card">
-            <h3 class="card-header">{{category.title}}</h3>
-            <h3 class="card-header">{{category.category}}</h3>
-            <li class="text-center">
-             
-                <p>{{ category.description|truncate(10)}}</p>
-            </li>
-        </div>
+<div class="row">
+	{% if category_list %}
+		{% for category in category_list %}
+		<div class="col-md-6">
+			<div class="thumbnail text-center">
+			<h5 class="card-header">{{category.title}}</h5>
+			<h5 class="card-header">{{category.category}}</h5>
+			<div class="card-body">
+				<blockquote class="blockquote mb-0">
+					<h2>{{category.description}}</h2>
+	
+				</blockquote>
+				
+				<a href="{{url_for('main.new_comment',pitch_id = category.id)}}" class="btn btn-info"> Add a comment</a>
+				<a href="{{url_for('main.upvote',pitch_id = category.id)}}" class= "btn btn-primary btn-sm"><i></i>Upvote <span>{{category.upvotes.count()}}</span></a>
+				<a href="{{url_for('main.downvote',pitch_id = category.id)}}" class= "btn btn-danger btn-sm"><i class="far fa-thumbs-up"></i>Downvote <span>{{category.downvotes.count()}}</span></a>
 
-    {% endfor %}
-  {% endif %}
+
+			</div>
+		</div>
+
+		</div>
+		{% endfor %}
+	{% else %}
+	{% endif %}
+</div>
 {% endmacro %}
 
 
-<!-- Displaying reviews macro  -->
-{% macro displayReviews(comment_list) %}
 
-    {% for comment in comment_list %}
+{% macro displayComment(comments) %}
+<ul>
 
-    <div class="row">
+			{% if comments %}
+			{% for comment in comments %}
+				<div class="row text-center">
+						<a><p style="color: brown">{{ comment.description }}</p></a>
+				</div>
+			{% endfor %}
+			{% else %}
 
-      <div class="col-xs-2 col-sm-2 col-md-4 col-lg-4">
-        <h4>Author</h4>
-        <p>{{comment.user.username}}</p>
-      </div>
-      <div class="col-xs-10 col-sm-10 col-md-8 col-lg-8">
-        <h2> <a href="{{url_for('main.single_comment',id=comment.id)}}">{{comment.pitch_title}}</a> </h2>
-      </div>
-    </div>
+			<h3>This post does  not does not have any comments yet !</h3>
+			{%endif%}
 
-    {% endfor %}
+	</ul>
+	
+			
+
+
 {% endmacro %}

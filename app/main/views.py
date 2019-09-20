@@ -1,7 +1,7 @@
 from flask import render_template,request,redirect,url_for,abort
 from . import main
-from .forms import PitchForm,CommentForm,UpdateProfile
-from ..models import User,Pitch,Comment
+from .forms import PitchForm,CommentForm,UpvoteForm,Downvote,UpdateProfile
+from ..models import User,Pitch,Comment,Upvote,Downvote
 from flask_login import login_required,current_user
 from .. import db,photos
 
@@ -26,60 +26,79 @@ def index():
 
     return render_template('index.html', title = title, pitch = pitch, pickuplines=pickuplines, interviewpitch= interviewpitch, promotionpitch = promotionpitch, productpitch = productpitch)
     
-@main.route('/pitch/<int:id>')
-def pitch(id):
-
-    '''
-    View comment page function that returns the comment details page and its data
-    '''
-    pitch = get_pitch(id)
-    title = f'{pitch.title}'
-    comments = Comment.get_comments(pitch.id)
-
-    return render_template('comments.html',title = title,pitch = pitch,comments = comments)
 
 
-
-
-
-@main.route('/comments/<int:id>')
-def pitch_comments(id):
-    pitch = get_pitch(id)
-
-    comments = Comment.get_comments(id)
-    title = f'All comments for {pitch.title}'
-    return render_template('pitch_comments.html',title = title,comments=comments)
-
-
-@main.route('/comment/<int:id>')
-def single_comment(id):
-    comment=Comment.query.get(id)
-    format_comment = markdown2.markdown(comment.pitch_comment,extras=["code-friendly", "fenced-code-blocks"])
-    return render_template('review.html',comment = comment,format_comment=format_comment)
-
-
-
-
-@main.route('/pitch/comment/new/<int:id>', methods = ['GET','POST'])
+@main.route('/pitches/new/', methods = ['GET','POST'])
 @login_required
-def new_comment(id):
-
-    form = CommentForm()
-
-    pitch = get_pitch(id)
-
+def new_pitch():
+    form = PitchForm()
+    
     if form.validate_on_submit():
+        description = form.description.data
         title = form.title.data
-        comment = form.comment.data
+        user_id = current_user
+        category = form.category.data
+        print(current_user._get_current_object().id)
+        new_pitch = Pitch(user_id =current_user._get_current_object().id, title = title,description=description,category=category)
+        db.session.add(new_pitch)
+        db.session.commit()
+        
+        
+        return redirect(url_for('main.index'))
+    return render_template('pitches.html',form=form)
 
-        new_comment = comment(pitch_id=pitch.id,pitch_title=title,pitch_comment=comment,user=current_user)
+@main.route('/comment/new/<int:pitch_id>', methods = ['GET','POST'])
+@login_required
+def new_comment(pitch_id):
+    form = CommentForm()
+    pitch=Pitch.query.get(pitch_id)
+    if form.validate_on_submit():
+        description = form.description.data
+       
+        new_comment = Comment(description = description, user_id = current_user._get_current_object().id, pitch_id = pitch_id)
+        db.session.add(new_comment)
+        db.session.commit()
 
-        new_comment.save_comment()
 
-        return redirect(url_for('.pitch',id = pitch.id ))
+        return redirect(url_for('.new_comment', pitch_id= pitch_id))
 
-    title = f'{pitch.title} comment'
-    return render_template('new_review.html',title = title, comment_form=form, pitch=pitch)
+    all_comments = Comment.query.filter_by(pitch_id = pitch_id).all()
+    return render_template('comments.html', form = form, comment = all_comments, pitch = pitch )
+
+
+@main.route('/pitch/upvote/<int:pitch_id>/upvote', methods = ['GET', 'POST'])
+@login_required
+def upvote(pitch_id):
+    pitch = Pitch.query.get(pitch_id)
+    user = current_user
+    pitch_upvotes = Upvote.query.filter_by(pitch_id= pitch_id)
+    
+    if Upvote.query.filter(Upvote.user_id==user.id,Upvote.pitch_id==pitch_id).first():
+        return  redirect(url_for('main.index'))
+
+
+    new_upvote = Upvote(pitch_id=pitch_id)
+    new_upvote.save_upvotes()
+    return redirect(url_for('main.index'))
+
+
+
+
+@main.route('/pitch/downvote/<int:pitch_id>/downvote', methods = ['GET', 'POST'])
+@login_required
+def downvote(pitch_id):
+    pitch = Pitch.query.get(pitch_id)
+    user = current_user
+    pitch_downvotes = Downvote.query.filter_by(pitch_id= pitch_id)
+    
+    if Downvote.query.filter(Downvote.user_id==user.id,Downvote.pitch_id==pitch_id).first():
+        return  redirect(url_for('main.index'))
+
+
+    new_downvote = Downvote(pitch_id=pitch_id)
+    new_downvote.save_downvotes()
+    return redirect(url_for('main.index'))
+
 
 @main.route('/user/<uname>')
 
@@ -118,7 +137,7 @@ def update_profile(uname):
 def update_pic(uname):
     user = User.query.filter_by(username = uname).first()
     if 'photo' in request.files:
-        filename = photos.save(request.files['photo'])
+        filename = photos.save(views.files['photo'])
         path = f'photos/{filename}'
         user.profile_pic_path = path
         user_photo = PhotoProfile(pic_path = path,user = user)
