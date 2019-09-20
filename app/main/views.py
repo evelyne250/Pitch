@@ -22,10 +22,10 @@ def index():
     promotionpitch = Pitch.query.filter_by(category = "promotionpitch")
     productpitch = Pitch.query.filter_by(category = "productpitch")
 
-    upvotes = Upvote.get_all_upvotes(pitch_id=Pitch.id)
+    # upvotes = Upvote.get_all_upvotes(pitch_id=Pitch.id)
     
 
-    return render_template('index.html', title = title, pitch = pitch, pickuplines=pickuplines, interviewpitch= interviewpitch, promotionpitch = promotionpitch, productpitch = productpitch, upvotes=upvotes)
+    return render_template('index.html', title = title, pitch = pitch, pickuplines=pickuplines, interviewpitch= interviewpitch, promotionpitch = promotionpitch, productpitch = productpitch)
     
 # @main.route('/movie/<int:id>')
 # def movie(id):
@@ -41,16 +41,6 @@ def index():
 
 
 
-# @main.route('/search/<movie_name>')
-# def search(movie_name):
-#     '''
-#     View function to display the search results
-#     '''
-#     movie_name_list = movie_name.split(" ")
-#     movie_name_format = "+".join(movie_name_list)
-#     searched_movies = search_movie(movie_name_format)
-#     title = f'search results for {movie_name}'
-#     return render_template('search.html',movies = searched_movies)
 
 
 # @main.route('/reviews/<int:id>')
