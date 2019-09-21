@@ -8,6 +8,13 @@ from datetime import datetime
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+class PhotoProfile(db.Model):
+    __tablename__ = 'profile_photos'
+
+    id = db.Column(db.Integer,primary_key = True)
+    pic_path = db.Column(db.String())
+    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
+
 
 class User(UserMixin,db.Model):
     
@@ -18,6 +25,9 @@ class User(UserMixin,db.Model):
     pass_secure = db.Column(db.String(255))
     pitch = db.relationship('Pitch', backref='user', lazy='dynamic')
     bio = db.Column(db.String(255))
+    profile_pic_path = db.Column(db.String())
+    password_hash = db.Column(db.String(255))
+    photos = db.relationship('PhotoProfile',backref = 'user',lazy = "dynamic")
     @property
     def password(self):
         raise AttributeError('You cannot read the password attribute')
@@ -46,8 +56,6 @@ class Pitch(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     description = db.Column(db.String(), index = True)
     title = db.Column(db.String())
-    # downvotes = db.Column(db.Integer, default=int(0))
-    # upvotes = db.Column(db.Integer, default=int(0))
     category = db.Column(db.String(255), nullable=False)
     comments = db.relationship('Comment',backref='pitch',lazy='dynamic')
     upvotes = db.relationship('Upvote', backref = 'pitch', lazy = 'dynamic')
@@ -145,12 +153,6 @@ class Downvote(db.Model):
 
 
 
-# class PhotoProfile(db.Model):
-#     __tablename__ = 'profile_photos'
-
-#     id = db.Column(db.Integer,primary_key = True)
-#     pic_path = db.Column(db.String())
-#     user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
 
 
 
