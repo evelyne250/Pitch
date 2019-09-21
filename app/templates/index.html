@@ -5,7 +5,8 @@
 {% endblock %}
  {% block content %}
  <div class="container">
-
+<div class="row">
+  <div class="col-md-6">
   {% if current_user.is_authenticated%}
     <h1>Hello {{current_user.username}}</h1>
   {% else %}
@@ -15,11 +16,17 @@
   <button class="btn btn-outline-primary">
       <a style="text-align: center; color: rgb(44, 17, 17);" class="navbar-brand" href="/pitches/new/"> Post a NewPitch </a>
   </button>
-<footer>
-        <p>Made by Evelyne Umuhire</p>
-   </footer>  
-</div>
   
+  </div>
+  <div class="col-md-6">
+    <h1>Pitch application Description</h1>
+     <p>This is an application where you can post your pitch and view pitches posted by others you can comment, upvote and downvote on the pitch. you first have to register and the log in for you to post a pitch you should have an account </p>
+</div>
+
+</div>
+<blockquote>
+    <p>Made by Evelyne Umuhire</p>
+  </blockquote>
  {% endblock %}
 
 
