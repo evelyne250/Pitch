@@ -46,15 +46,6 @@ def new_pitch():
         
         return redirect(url_for('main.index'))
     return render_template('pitches.html',form=form)
-@main.route('/allpitches')
-def pitch_list():
-    # Function that renders the business category pitches and its content
-
-    pitch_list = Pitch.query.all()
-    
-  
- 
-    return render_template('all_pitches.html', pitch_list=pitch_list)
 
 @main.route('/comment/new/<int:pitch_id>', methods = ['GET','POST'])
 @login_required
