@@ -14,7 +14,7 @@ This is an application where you can post your pitch and view pitches posted by 
   * Postgressql
   * migrations
   * database(psql)
-  * Heroku
+
 
 ## Known Bugs
 No known bugs so far, if found please contact me at uevelyne44@gmail.com
