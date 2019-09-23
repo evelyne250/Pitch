@@ -6,7 +6,7 @@ from ..models import User,Pitch
 
 class PitchForm(FlaskForm):
 	title = StringField('Title', validators=[Required()])
-	description = TextAreaField("What would you like to pitch ?",validators=[Required()])
+	description = TextAreaField("Pitch Now :",validators=[Required()])
 	category = RadioField('Label', choices=[ ('promotionpitch','promotionpitch'), ('interviewpitch','interviewpitch'),('pickuplines','pickuplines'),('productpitch','productpitch')],validators=[Required()])
 	submit = SubmitField('Submit')
 	
@@ -20,6 +20,15 @@ class UpvoteForm(FlaskForm):
 
 class Downvote(FlaskForm):
 	submit = SubmitField()
+
+# class ReviewForm(FlaskForm):
+
+#  title = StringField('Review title',validators=[Required()])
+
+#  review = TextAreaField('Pitch review')
+
+#  submit = SubmitField('Submit')
+ 
 class UpdateProfile(FlaskForm):
     bio = TextAreaField('Tell us about you.',validators = [Required()])
     submit = SubmitField('Submit')

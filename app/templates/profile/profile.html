@@ -5,11 +5,28 @@
 <div class="container">
 
 <div class="row">
-
-
-  <div class="col-md-4">
+    <div class="col-md-6">
+        {% if user.profile_pic_path %}
+    
+        <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail">
+    
+        {%else%}
+        <p>No profile picture</p>
+    
+        {% endif %}
+    
+          {% if user == current_user %}
+        <form  action="{{url_for('main.update_pic',uname=user.username)}}" method="post" enctype = "multipart/form-data">
+    
+          <input type="file"  name="photo" class="form-control" required>
+          <input type="submit">
+          {% endif %}
+    
+        </form>
+      </div>
+<div class="col-md-6">
     <h3> {{user.username| capitalize}} </h3>
-
+  
     {% if user.bio %}
       <p> {{user.bio}}</p>
 
@@ -20,29 +37,38 @@
     {% if user == current_user %}
       <a href="{{url_for('main.update_profile',uname=user.username)}}">Edit profile</a>
     {% endif %}
-
-  </div>
-  <div class="col-md-4">
-    {% if user.profile_pic_path %}
-
-    <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail">
-
-    {%else%}
-    <p>No profile picture</p>
-
-    {% endif %}
-
-      {% if user == current_user %}
-    <form  action="{{url_for('main.update_pic',uname=user.username)}}" method="post" enctype = "multipart/form-data">
-
-      <input type="file"  name="photo" class="form-control" required>
-      <input type="submit">
-      {% endif %}
-
-    </form>
   </div>
 
+  <div class="row">
+ 
+    <div class="col-md-12">
+      <h1>  All Pitches:</h1>
+      {% for pitch in pitches %}
+      <div class="thumbnail text-center">
+          <div class="card">
+    <h5 class="card-header">{{pitch.title}}</h5>
+    <h5 class="card-header">{{pitch.category}}</h5>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <h2>{{pitch.description}}</h2>
+              <footer> Posted by {{pitch.user.username}}</footer>
+      </blockquote>
+        
+          
+				<a href="{{url_for('main.new_comment',pitch_id = pitch.id)}}" class="btn btn-info">Comment <span>{{pitch.comments.count()}}</span></a>
+				<a href="{{url_for('main.upvote',pitch_id = pitch.id)}}" class= "btn btn-primary btn-sm"><i></i>Like <span>{{pitch.upvotes.count()}}</span></a>
+				<a href="{{url_for('main.downvote',pitch_id = pitch.id)}}" class= "btn btn-danger btn-sm"><i class="far fa-thumbs-up"></i>Dislike <span>{{pitch.downvotes.count()}}</span></a>
 
+
+        {% endfor %}
+      
+      </div>
+  </div>
+</div>
+  
+
+   
 </div>
 </div>
+
 {% endblock %}

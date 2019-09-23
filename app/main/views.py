@@ -1,7 +1,7 @@
 from flask import render_template,request,redirect,url_for,abort
 from . import main
 from .forms import PitchForm,CommentForm,UpvoteForm,Downvote,UpdateProfile
-from ..models import User,Pitch,Comment,Upvote,Downvote
+from ..models import User,Pitch,Comment,Upvote,Downvote,PhotoProfile
 from flask_login import login_required,current_user
 from .. import db,photos
 
@@ -99,16 +99,26 @@ def downvote(pitch_id):
     new_downvote.save_downvotes()
     return redirect(url_for('main.index'))
 
+@main.route('/pitches/new/')
+def single_review(id):
+    pitches=Pitch.query.get(id)
+    if pitch is None:
+        abort(404)
+    format_pitch = markdown2.markdown(pitch.Pitch_pitch,extras=["code-friendly", "fenced-code-blocks"])
+    return render_template('review.html',pitch = pitch,format_pitch=format_pitch)
+
+
 
 @main.route('/user/<uname>')
 
 def profile(uname):
     user = User.query.filter_by(username = uname).first()
-
+    get_pitches = Pitch.query.filter_by(user_id = current_user.id).all()
+    print(get_pitches)
     if user is None:
         abort(404)
 
-    return render_template("profile/profile.html", user = user)
+    return render_template("profile/profile.html", user = user, pitches = get_pitches)
 
 
 @main.route('/user/<uname>/update',methods = ['GET','POST'])
@@ -137,7 +147,7 @@ def update_profile(uname):
 def update_pic(uname):
     user = User.query.filter_by(username = uname).first()
     if 'photo' in request.files:
-        filename = photos.save(views.files['photo'])
+        filename = photos.save(request.files['photo'])
         path = f'photos/{filename}'
         user.profile_pic_path = path
         user_photo = PhotoProfile(pic_path = path,user = user)
